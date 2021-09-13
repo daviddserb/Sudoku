@@ -1,6 +1,6 @@
 const grid = document.getElementById("grid");
 const width = 9, height = width;
-var squares = []; //will save the square elements
+var squares = []; //will save the square elements (divs)
 var textAreas = []; //will save the input numbers from player
 var squaresArray = new Array(81).fill(0); //will save all the numbers from the matrix
 
