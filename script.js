@@ -1,22 +1,22 @@
 const grid = document.getElementById("grid");
 const width = 9, height = width;
-var squares = []; //will save the square elements (divs)
-var squaresArray = new Array(81).fill(0); //will save all the numbers from the matrix
-var textAreas = []; //will save the input numbers from player
+var divs = []; //will save the html elements, divs (the squares)
+var squaresArray = new Array(81).fill(0); //will save the numbers from the squares
+var textareas = []; //will save the html elements, textarea (the input in some squares)
 
-var refreshPageIfError = 0;
+var refreshPageIfError = 0; //will refresh page if an error appears when creating the table
 
 var sudokuTable = "loading";
 
-var won = false;
-var nrTries = 0;
+var won = false; //will be true, when the player won
+var nrTries = 0; //will check if player won the game after some tries
 
 function generateBoard() {
   //create squares and add them to the table
   for (let i = 0; i < width * height; ++i) {
     var square = document.createElement("div"); //create HTML element with the 'div' tag
     square.setAttribute("id", i);
-    squares[i] = square;
+    divs[i] = square;
     grid.appendChild(square); //we add the square to the table
 
     if ((18 <= square.id && square.id <= 26) || (45 <= square.id && square.id <= 53)) { //matrix delimitation
@@ -129,7 +129,7 @@ function checkSudokuRules(value, pos, posStartMatrix3x3) {
     if (sudokuTable == "loading") {
       if (validNr == 24) {
         goodNr = true; //nr. respects sudoku rules =>
-        squares[pos].innerHTML = value; //write it down in the square (in the table)
+        divs[pos].innerHTML = value; //write it down in the square (in the table)
         squaresArray[pos] = value; //save the value in the array
       } else {
         goodNr = false; //nr. isn't good => start from 1 to 9 to find a good nr.
@@ -157,9 +157,9 @@ function hideNumbers() {
   while (numbersToHide != 0) {
     let pos = Math.floor(Math.random() * 81) + 0;
     if (squaresArray[pos] != 0) { //so we will hide exactly 30 nrs.
-      squares[pos].innerHTML = '';
+      divs[pos].innerHTML = '';
+      divs[pos].classList.add("guessNumber");
       squaresArray[pos] = 0;
-      squares[pos].classList.add("guessNumber");
       --numbersToHide;
     }
   }
@@ -169,10 +169,9 @@ function hideNumbers() {
 function createEditableSquares() {
   for (let i = 0; i < width * height; ++i) {
     if (squaresArray[i] == 0) {
-      let inputNr = document.createElement("textarea");
-      inputNr.classList.add("textarea"); //for CSS
-      textAreas[i] = inputNr;
-      squares[i].appendChild(inputNr);
+      let inputSquare = document.createElement("textarea");
+      textareas[i] = inputSquare;
+      divs[i].appendChild(inputSquare);
     }
   }
 }
@@ -183,9 +182,9 @@ function clickSquare(pos) {
   }
 
   ++nrTries;
-  if (squares[pos].classList.contains("guessNumber")) {
-    let inputNrFromPlayer = textAreas[pos].value;
-    checkSudokuRules(inputNrFromPlayer, pos, checkWhichMatrix3x3(pos));
+  if (divs[pos].classList.contains("guessNumber")) {
+    let inputDigit = textareas[pos].value;
+    checkSudokuRules(inputDigit, pos, checkWhichMatrix3x3(pos));
   }
   if (nrTries >= 30) {
     checkIfWin();
