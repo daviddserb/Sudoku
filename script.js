@@ -128,7 +128,7 @@ function checkSudokuRules(value, pos, posStartMatrix3x3) {
       posStartMatrix3x3 += 9;
     }
 
-    if (sudokuTable == "loading") { //when we build the matrix (add the numbers)
+    if (sudokuTable == "loading") { //when build the matrix (add the numbers)
       if (validNr == 24) {
         goodNr = true; //nr. respects sudoku rules =>
         divs[pos].innerHTML = value; //write it down in the square (in the table)
@@ -141,13 +141,13 @@ function checkSudokuRules(value, pos, posStartMatrix3x3) {
       if (startAgain == 11 && goodNr == false && squaresArray[pos] == 0) { //extreme case
         addNumbers();
       }
-    } else { //when we input the numbers in a textarea square
+    } else { //when input the numbers in a textarea square
       goodNr = true;
       if (validNr == 24) {
-        alert("Good nr.");
+        document.getElementById("gameStatus").innerHTML = "Good nr.";
         squaresArray[pos] = value; //save the value in the array
       } else {
-        alert("Bad nr.");
+        document.getElementById("gameStatus").innerHTML = "Bad nr.";
       }
     }
   }
@@ -201,7 +201,7 @@ function checkIfWin() {
     }
   }
   if (cnt == 81) {
-    alert("YOU WON");
+    document.getElementById("gameStatus").innerHTML = "YOU WON";
     won = true;
   }
 }
