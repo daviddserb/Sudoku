@@ -4,7 +4,7 @@ var divs = []; //will save the html elements, divs (the squares)
 var squaresArray = new Array(81).fill(0); //will save the numbers from the squares
 var textareas = []; //will save the html elements, textarea (the input in some squares)
 
-var refreshPageIfError = 0; //will refresh page if an error appears when creating the table
+var cntAddNumbers = 0; //will refresh page if an error appears when creating the table
 
 var sudokuTable = "loading";
 
@@ -35,11 +35,12 @@ function generateBoard() {
 }
 
 function addNumbers() {
-  ++refreshPageIfError;
-  if (refreshPageIfError == 3000) {
-    location.reload();
+  ++cntAddNumbers;
+  if (cntAddNumbers == 3000) {
+    location.reload(); //refresh page to don't encounter errors
   }
 
+  //add random values in the big matrix
   for (let i = 0; i < width * height; ++i) {
     let value = Math.floor(Math.random() * 9) + 1; //1 <= nr. random <= 9
     if (checkWhichMatrix3x3(i) == 0 || checkWhichMatrix3x3(i) == 3 || checkWhichMatrix3x3(i) == 6 ||
@@ -52,6 +53,7 @@ function addNumbers() {
 }
 
 function checkWhichMatrix3x3(pos) {
+  //find the start position of the 3x3 matrix
   if (pos == 0 || pos == 1 || pos == 2 || pos == 9 || pos == 10 || pos == 11 || pos == 18 || pos == 19 || pos == 20) {
     return 0;
   } else if (pos == 3 || pos == 4 || pos == 5 || pos == 12 || pos == 13 || pos == 14 || pos == 21 || pos == 22 || pos == 23) {
@@ -126,21 +128,21 @@ function checkSudokuRules(value, pos, posStartMatrix3x3) {
       posStartMatrix3x3 += 9;
     }
 
-    if (sudokuTable == "loading") {
+    if (sudokuTable == "loading") { //when we build the matrix (add the numbers)
       if (validNr == 24) {
         goodNr = true; //nr. respects sudoku rules =>
         divs[pos].innerHTML = value; //write it down in the square (in the table)
         squaresArray[pos] = value; //save the value in the array
       } else {
-        goodNr = false; //nr. isn't good => start from 1 to 9 to find a good nr.
+        goodNr = false; //nr. isn't good => repeat algorithm and check all numbers from 1 to 9
         posStartMatrix3x3 = copyPosStartMatrix3x3;
         value = startAgain++;
       }
-      if (startAgain == 11 && goodNr == false && squaresArray[pos] == 0) { //EXTREM
+      if (startAgain == 11 && goodNr == false && squaresArray[pos] == 0) { //extreme case
         addNumbers();
       }
-    } else {
-      goodNr = true; //stop while loop
+    } else { //when we input the numbers in a textarea square
+      goodNr = true;
       if (validNr == 24) {
         alert("Good nr.");
         squaresArray[pos] = value; //save the value in the array
@@ -156,7 +158,7 @@ function hideNumbers() {
   let numbersToHide = 30; //how many nrs. we hide
   while (numbersToHide != 0) {
     let pos = Math.floor(Math.random() * 81) + 0;
-    if (squaresArray[pos] != 0) { //so we will hide exactly 30 nrs.
+    if (squaresArray[pos] != 0) { //only different positions
       divs[pos].innerHTML = '';
       divs[pos].classList.add("guessNumber");
       squaresArray[pos] = 0;
