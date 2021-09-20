@@ -1,21 +1,21 @@
 #grid {
-  width: 360px;
-  height: 360px;
-  margin: 100px auto; /*page positioning*/
-  display: flex; /*put each square one after the other, on the line*/
-  flex-wrap: wrap; /*to don't be on top of each other*/
+  display: grid;
+  grid-template-columns: repeat(9, auto);
+  width: 300px; /*the spacing between the columns formed by the squares*/
+  margin: 200px auto; /*page positioning, horizontal and vertical*/
 }
 
 #grid div {
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
+  width: 50px;
+  height: 50px;
   border: 1px solid #000000;
-  box-shadow: 0 0 0 1px #000000; /*the outer lines of the game board*/
-  text-align: center;
+  box-shadow: 0 0 0 1px #000000; /*the 4 outer lines*/
+  cursor: pointer;
+  text-align: center; /*numbers in the middle of the square*/
+  font-size: 25px; /*size of the numbers*/
 }
 
 textarea {
-  width: 36px;
-  height: 36px;
+  width: 46px;
+  height: 46px;
 }
