@@ -1,12 +1,12 @@
 const grid = document.getElementById("grid");
 const gameStatus = document.getElementById("gameStatus")
 const width = 9, height = width;
-var squaresArray = Array(9).fill().map(() => Array(9).fill()); //divs
+var squaresArray = Array(9).fill().map(() => Array(9).fill()); //divs (html element)
 var nrInSquaresArray = Array(9).fill().map(() => Array(9).fill(0)); //numbers in divs
 
-var inputSquaresArray = Array(9).fill().map(() => Array(9).fill()); //textareas
+var inputSquaresArray = Array(9).fill().map(() => Array(9).fill()); //textareas (html element)
 
-var cntExtremeCase = 0; //will refresh page if an error appears when creating the table
+var cntExtremeCase = 0; //will refresh the page if an error appears when creating the table
 
 var won = false; //will be true, when the player finished the game
 var nrTries = 0; //will check if the player won the game after some tries
@@ -17,12 +17,12 @@ function generateBoard() {
       var square = document.createElement("div"); //create HTML element with the "div" tag
       square.setAttribute("id", i + "" + j);
       squaresArray[i][j] = square;
-      grid.appendChild(square); //we add the square to the table
+      grid.appendChild(square); //add the square to the table
 
-      if (i == 2 || i == 5) { //matrix delimitation
+      if (i == 2 || i == 5) { //matrix delimitation (horizontal)
        square.style.borderBottom = "3px solid";
       }
-      if (j != 0 && j % 3 == 0) { //matrix delimitation
+      if (j != 0 && j % 3 == 0) { //matrix delimitation (vertical)
         square.style.borderLeft = "3px solid";
       }
 
@@ -43,7 +43,7 @@ function addNumbers() {
       if (checkSudokuRules(i, j, randomVal)) {
         nrInSquaresArray[i][j] = randomVal;
         squaresArray[i][j].innerHTML = randomVal;
-      } else {
+      } else { //when the random value is not good => check all posibilities from 1 to 9
         let valueNotGood = "yes", tryAllValues = 1;
         while (valueNotGood == "yes" && tryAllValues < 10) {
           if (checkSudokuRules(i, j, tryAllValues)) {
@@ -55,15 +55,18 @@ function addNumbers() {
           }
         }
 
-        if (tryAllValues == 10 && valueNotGood == "yes") { //extreme case (when no number between 1 and 9 is good in the square)
+        if (tryAllValues == 10 && valueNotGood == "yes") { //when no number between 1 and 9 is good in the square (extreme case)
+          console.log("###");
           ++cntExtremeCase;
+          //'reset' the entire line of that number and repeat the process from the start of that line
           for (let k = 0; k <= j; ++k) {
             nrInSquaresArray[i][k] = 0;
             squaresArray[i][k].innerHTML = "";
           }
           j = -1;
         }
-        if (cntExtremeCase == 2000) { // !!! NU MERGE
+        if (cntExtremeCase == 2000) { //when enter the extreme case too many times (NU MERGE)
+          console.log("ddd");
           location.reload(); //refresh page to don't encounter errors
         }
       }
@@ -100,6 +103,7 @@ function checkSudokuRules(lineNr, colNr, valNr) {
 }
 
 function hideNumbers() {
+  //after the entire sudoku has been built => 'hide' numbers from X random positions
   let numbersToHide = 30;
   while (numbersToHide != 0) {
     let line = Math.floor(Math.random() * 9);
@@ -115,6 +119,7 @@ function hideNumbers() {
 }
 
 function createEditableSquares() {
+  //on the hidden values, we add the textarea (html element)
   for (let i = 0; i < width; ++i) {
     for (let j = 0; j < height; ++j) {
       if (nrInSquaresArray[i][j] == 0) {
@@ -145,6 +150,7 @@ function clickInputSquares(line, col) {
       gameStatus.innerHTML = "Bad number.";
       nrInSquaresArray[line][col] = "wrong";
     }
+    console.log(nrInSquaresArray);
   }
   if (nrTries >= 30) {
     checkIfWin();
