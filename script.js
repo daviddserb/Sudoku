@@ -150,7 +150,6 @@ function clickInputSquares(line, col) {
       gameStatus.innerHTML = "Bad number.";
       nrInSquaresArray[line][col] = "wrong";
     }
-    console.log(nrInSquaresArray);
   }
   if (nrTries >= 30) {
     checkIfWin();
