@@ -56,7 +56,6 @@ function addNumbers() {
         }
 
         if (tryAllValues == 10 && valueNotGood == "yes") { //extreme case (when no number between 1 and 9 is good in the square)
-          console.log("###");
           ++cntExtremeCase;
           for (let k = 0; k <= j; ++k) {
             nrInSquaresArray[i][k] = 0;
@@ -65,7 +64,6 @@ function addNumbers() {
           j = -1;
         }
         if (cntExtremeCase == 2000) { // !!! NU MERGE
-          console.log("ddd");
           location.reload(); //refresh page to don't encounter errors
         }
       }
@@ -74,32 +72,25 @@ function addNumbers() {
 }
 
 function checkSudokuRules(lineNr, colNr, valNr) {
-  //console.log(lineNr + " " + colNr + " " + valNr);
   //check the line from the big matrix
-  //console.log("linia:");
   for (let colMatrix = 0; colMatrix < width; ++colMatrix) {
-    //console.log(lineNr + " " + colMatrix + " cu val= " + nrInSquaresArray[lineNr][colMatrix]);
     if (valNr == nrInSquaresArray[lineNr][colMatrix] && colNr != colMatrix) {
       return false;
     }
   }
 
   //check the column from the big matrix
-  //console.log("coloana:");
   for (let lineMatrix = 0; lineMatrix < height; ++lineMatrix) {
-    //console.log(lineMatrix + " " + colNr + " cu val= " + nrInSquaresArray[lineMatrix][colNr]);
     if (valNr == nrInSquaresArray[lineMatrix][colNr] && lineNr != lineMatrix) {
       return false;
     }
   }
 
   //check the 3x3 matrix
-  //console.log("matricea3x3:");
   let startLine3x3Matrix = Math.floor(lineNr / 3) * 3;
   let startCol3x3Matrix = Math.floor(colNr / 3) * 3;
   for (let i = startLine3x3Matrix; i < startLine3x3Matrix + 3; ++i) {
     for (let j = startCol3x3Matrix; j < startCol3x3Matrix + 3; ++j) {
-      //console.log(i + " " + j + " cu val= " + nrInSquaresArray[i][j]);
       if (valNr == nrInSquaresArray[i][j] && lineNr != i && colNr != j) { 
         return false;
       }
@@ -154,7 +145,6 @@ function clickInputSquares(line, col) {
       gameStatus.innerHTML = "Bad number.";
       nrInSquaresArray[line][col] = "wrong";
     }
-    console.log(nrInSquaresArray);
   }
   if (nrTries >= 30) {
     checkIfWin();
