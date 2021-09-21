@@ -1,33 +1,30 @@
 const grid = document.getElementById("grid");
 const gameStatus = document.getElementById("gameStatus")
 const width = 9, height = width;
-var squaresArray = Array(9).fill().map(() => Array(9).fill()); //divs (html element)
-var nrInSquaresArray = Array(9).fill().map(() => Array(9).fill(0)); //numbers in divs
+var squaresMatrix = Array(9).fill().map(() => Array(9).fill()); //will save the textarea html element and the number inside it
 
-var inputSquaresArray = Array(9).fill().map(() => Array(9).fill()); //textareas (html element)
-
-var cntExtremeCase = 0; //will refresh the page if an error appears when creating the table
+var cntExtremeCase = 0; //will refresh the page if an error appears when creating the board
 
 var won = false; //will be true, when the player finished the game
 var nrTries = 0; //will check if the player won the game after some tries
 
 function generateBoard() {
-  for (let i = 0; i < width; ++i) {
-    for (let j = 0; j < height; ++j) {
-      var square = document.createElement("div"); //create HTML element with the "div" tag
-      square.setAttribute("id", i + "" + j);
-      squaresArray[i][j] = square;
-      grid.appendChild(square); //add the square to the table
+  for (let line = 0; line < width; ++line) {
+    for (let col = 0; col < height; ++col) {
+      var square = document.createElement("textarea"); //create HTML element with the "textarea" tag
+      square.setAttribute("id", line + "" + col);
+      squaresMatrix[line][col] = square;
+      grid.appendChild(square); //add the square to the board
 
-      if (i == 2 || i == 5) { //matrix delimitation (horizontal)
+      if (line == 2 || line == 5) { //matrix delimitation (horizontal)
        square.style.borderBottom = "3px solid";
       }
-      if (j != 0 && j % 3 == 0) { //matrix delimitation (vertical)
+      if (col != 0 && col % 3 == 0) { //matrix delimitation (vertical)
         square.style.borderLeft = "3px solid";
       }
 
-      square.addEventListener("click", function() { //! because I add function(), we move over in the code
-        clickInputSquares(i, j);
+      square.addEventListener("click", function() { //(! because function() => move over in the code and it's called only on click)
+        clickInputSquares(line, col);
       })
     }
   }
@@ -36,38 +33,36 @@ function generateBoard() {
 }
 
 function addNumbers() {
-  //build the entire sudoku table
-  for (let i = 0; i < width; ++i) {
-    for (let j = 0; j < height; ++j) {
+  //build the entire sudoku board
+  for (let line = 0; line < width; ++line) {
+    for (let col = 0; col < height; ++col) {
       let randomVal = Math.floor(Math.random() * 9) + 1;
-      if (checkSudokuRules(i, j, randomVal)) {
-        nrInSquaresArray[i][j] = randomVal;
-        squaresArray[i][j].innerHTML = randomVal;
+      if (checkSudokuRules(line, col, randomVal)) {
+        squaresMatrix[line][col].innerHTML = randomVal;
       } else { //when the random value is not good => check all posibilities from 1 to 9
         let valueNotGood = "yes", tryAllValues = 1;
         while (valueNotGood == "yes" && tryAllValues < 10) {
-          if (checkSudokuRules(i, j, tryAllValues)) {
+          if (checkSudokuRules(line, col, tryAllValues)) {
             valueNotGood = "no";
-            nrInSquaresArray[i][j] = tryAllValues;
-            squaresArray[i][j].innerHTML = tryAllValues;
+            squaresMatrix[line][col].innerHTML = tryAllValues;
           } else {
             ++tryAllValues;
           }
         }
 
-        if (tryAllValues == 10 && valueNotGood == "yes") { //when no number between 1 and 9 is good in the square (extreme case)
+        if (tryAllValues == 10 && valueNotGood == "yes") { //when no number between 1 to 9 is good in the square (extreme case)
           console.log("###");
           ++cntExtremeCase;
-          //'reset' the entire line of that number and repeat the process from the start of that line
-          for (let k = 0; k <= j; ++k) {
-            nrInSquaresArray[i][k] = 0;
-            squaresArray[i][k].innerHTML = "";
+          //'delete' the entire line and repeat the process from the start of that line
+          for (let colStart = 0; colStart <= col; ++colStart) {
+            squaresMatrix[line][colStart].innerHTML = "";
           }
-          j = -1;
+          col = -1;
         }
-        if (cntExtremeCase == 2000) { //when enter the extreme case too many times (NU MERGE)
+        if (cntExtremeCase == 2000) { //when enter the extreme case too many times
           console.log("ddd");
           location.reload(); //refresh page to don't encounter errors
+          break;
         }
       }
     }
@@ -76,25 +71,29 @@ function addNumbers() {
 
 function checkSudokuRules(lineNr, colNr, valNr) {
   //check the line from the big matrix
+  //console.log(lineNr + " " + colNr + " " + valNr);
+  //console.log("linia:");
   for (let colMatrix = 0; colMatrix < width; ++colMatrix) {
-    if (valNr == nrInSquaresArray[lineNr][colMatrix] && colNr != colMatrix) {
+    if (valNr == squaresMatrix[lineNr][colMatrix].innerHTML && colNr != colMatrix) { //
       return false;
     }
   }
 
   //check the column from the big matrix
+  //console.log("coloana:");
   for (let lineMatrix = 0; lineMatrix < height; ++lineMatrix) {
-    if (valNr == nrInSquaresArray[lineMatrix][colNr] && lineNr != lineMatrix) {
+    if (valNr == squaresMatrix[lineMatrix][colNr].innerHTML && lineNr != lineMatrix) { //
       return false;
     }
   }
 
   //check the 3x3 matrix
+  //console.log("matricea3x3:");
   let startLine3x3Matrix = Math.floor(lineNr / 3) * 3;
   let startCol3x3Matrix = Math.floor(colNr / 3) * 3;
   for (let i = startLine3x3Matrix; i < startLine3x3Matrix + 3; ++i) {
     for (let j = startCol3x3Matrix; j < startCol3x3Matrix + 3; ++j) {
-      if (valNr == nrInSquaresArray[i][j] && lineNr != i && colNr != j) { 
+      if (valNr == squaresMatrix[i][j].innerHTML && lineNr != i && colNr != j) { //
         return false;
       }
     }
@@ -103,15 +102,14 @@ function checkSudokuRules(lineNr, colNr, valNr) {
 }
 
 function hideNumbers() {
-  //after the entire sudoku has been built => 'hide' numbers from X random positions
+  //after the entire sudoku board has been built => 'hide' the numbers from random positions
   let numbersToHide = 30;
   while (numbersToHide != 0) {
     let line = Math.floor(Math.random() * 9);
     let column = Math.floor(Math.random() * 9);
-    if (nrInSquaresArray[line][column] != 0) { //only different positions
-      nrInSquaresArray[line][column] = 0;
-      squaresArray[line][column].innerHTML = "";
-      squaresArray[line][column].classList.add("guessNr");
+    if (1 <= squaresMatrix[line][column].innerHTML && squaresMatrix[line][column].innerHTML <= 9) { //only different positions //
+      squaresMatrix[line][column].innerHTML = "";
+      squaresMatrix[line][column].classList.add("guessNr"); //
       --numbersToHide;
     }
   }
@@ -119,38 +117,38 @@ function hideNumbers() {
 }
 
 function createEditableSquares() {
-  //on the hidden values, we add the textarea (html element)
-  for (let i = 0; i < width; ++i) {
-    for (let j = 0; j < height; ++j) {
-      if (nrInSquaresArray[i][j] == 0) {
-        let inputSquare = document.createElement("textarea");
-        inputSquaresArray[i][j] = inputSquare;
-        squaresArray[i][j].appendChild(inputSquare);
+  for (let line = 0; line < width; ++line) {
+    for (let col = 0; col < height; ++col) {
+      if (squaresMatrix[line][col].innerHTML != "") { //
+        squaresMatrix[line][col].setAttribute("readonly", true);
       }
     }
   }
+  console.log(squaresMatrix); //
 }
 
 function clickInputSquares(line, col) {
-  if (won == true || !(squaresArray[line][col].classList.contains("guessNr"))) {
+  if (won) {
     return;
   }
 
-  ++nrTries;
-  if (squaresArray[line][col].classList.contains("guessNr")) {
-    let inputDigit = inputSquaresArray[line][col].value;
+  if (squaresMatrix[line][col].classList.contains("guessNr")) { //!: in loc sa ii dau clasa si sa verific daca o are, am vrut sa verific daca nu este readonly, ca sa scurtez, dar nu merge
+    ++nrTries;
+    let inputDigit = squaresMatrix[line][col].value;
     if (!(1 <= inputDigit && inputDigit <= 9)) {
       alert("The number must be in the range [1, 9].")
       return;
     }
     if (checkSudokuRules(line, col, inputDigit)) {
       gameStatus.innerHTML = "Good number.";
-      nrInSquaresArray[line][col] = inputDigit;
+      squaresMatrix[line][col].innerHTML = inputDigit;
     } else {
       gameStatus.innerHTML = "Bad number.";
-      nrInSquaresArray[line][col] = "wrong";
+      squaresMatrix[line][col].innerHTML = "wrong";
     }
+    console.log(squaresMatrix);
   }
+
   if (nrTries >= 30) {
     checkIfWin();
   }
@@ -160,7 +158,7 @@ function checkIfWin() {
   let cnt = 0;
   for (let i = 0; i < width; ++i) {
     for (let j = 0; j < height; ++j) {
-      if (nrInSquaresArray[i][j] != "wrong") {
+      if (squaresMatrix[i][j].innerHTML != "wrong" && squaresMatrix[i][j].innerHTML != "") {
         ++cnt;
       }
     }
@@ -169,9 +167,7 @@ function checkIfWin() {
     won = true;
     for (let i = 0; i < width; ++i) {
       for (let j = 0; j < height; ++j) {
-        if (squaresArray[i][j].classList.contains("guessNr")) {
-          inputSquaresArray[i][j].setAttribute("readonly", true);
-        }
+        squaresMatrix[i][j].setAttribute("readonly", true);
       }
     }
     document.getElementById("gameStatus").innerHTML = "YOU WON!";
