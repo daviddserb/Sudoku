@@ -51,7 +51,6 @@ function addNumbers() {
         }
 
         if (tryAllValues == 10 && valueNotGood == "yes") { //when no number between 1 to 9 is good in the square (extreme case)
-          console.log("###");
           ++cntExtremeCase;
           //'delete' the entire line and repeat the process from the start of that line
           for (let colStart = 0; colStart <= col; ++colStart) {
@@ -60,7 +59,6 @@ function addNumbers() {
           col = -1;
         }
         if (cntExtremeCase == 2000) { //when enter the extreme case too many times
-          console.log("ddd");
           location.reload(); //refresh page to don't encounter errors
           break;
         }
@@ -107,9 +105,8 @@ function hideNumbers() {
   while (numbersToHide != 0) {
     let line = Math.floor(Math.random() * 9);
     let column = Math.floor(Math.random() * 9);
-    if (1 <= squaresMatrix[line][column].innerHTML && squaresMatrix[line][column].innerHTML <= 9) { //only different positions //
+    if (squaresMatrix[line][column].innerHTML != "") { //only different positions //
       squaresMatrix[line][column].innerHTML = "";
-      squaresMatrix[line][column].classList.add("guessNr"); //
       --numbersToHide;
     }
   }
@@ -132,11 +129,12 @@ function clickInputSquares(line, col) {
     return;
   }
 
-  if (squaresMatrix[line][col].classList.contains("guessNr")) { //!: in loc sa ii dau clasa si sa verific daca o are, am vrut sa verific daca nu este readonly, ca sa scurtez, dar nu merge
+  if (!squaresMatrix[line][col].readOnly) {
     ++nrTries;
     let inputDigit = squaresMatrix[line][col].value;
     if (!(1 <= inputDigit && inputDigit <= 9)) {
       alert("The number must be in the range [1, 9].")
+      squaresMatrix[line][col].innerHTML = "";
       return;
     }
     if (checkSudokuRules(line, col, inputDigit)) {
