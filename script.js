@@ -68,9 +68,11 @@ function addNumbers() {
 }
 
 function checkSudokuRules(lineNr, colNr, valNr) {
+  if (!(1 <= valNr && valNr <= 9)) {
+    return false;
+  }
+
   //check the line from the big matrix
-  //console.log(lineNr + " " + colNr + " " + valNr);
-  //console.log("linia:");
   for (let colMatrix = 0; colMatrix < width; ++colMatrix) {
     if (valNr == squaresMatrix[lineNr][colMatrix].innerHTML && colNr != colMatrix) { //
       return false;
@@ -78,7 +80,6 @@ function checkSudokuRules(lineNr, colNr, valNr) {
   }
 
   //check the column from the big matrix
-  //console.log("coloana:");
   for (let lineMatrix = 0; lineMatrix < height; ++lineMatrix) {
     if (valNr == squaresMatrix[lineMatrix][colNr].innerHTML && lineNr != lineMatrix) { //
       return false;
@@ -86,7 +87,6 @@ function checkSudokuRules(lineNr, colNr, valNr) {
   }
 
   //check the 3x3 matrix
-  //console.log("matricea3x3:");
   let startLine3x3Matrix = Math.floor(lineNr / 3) * 3;
   let startCol3x3Matrix = Math.floor(colNr / 3) * 3;
   for (let i = startLine3x3Matrix; i < startLine3x3Matrix + 3; ++i) {
@@ -121,7 +121,6 @@ function createEditableSquares() {
       }
     }
   }
-  console.log(squaresMatrix); //
 }
 
 function clickInputSquares(line, col) {
@@ -132,19 +131,15 @@ function clickInputSquares(line, col) {
   if (!squaresMatrix[line][col].readOnly) {
     ++nrTries;
     let inputDigit = squaresMatrix[line][col].value;
-    if (!(1 <= inputDigit && inputDigit <= 9)) {
-      alert("The number must be in the range [1, 9].")
-      squaresMatrix[line][col].innerHTML = "";
-      return;
-    }
     if (checkSudokuRules(line, col, inputDigit)) {
       gameStatus.innerHTML = "Good number.";
       squaresMatrix[line][col].innerHTML = inputDigit;
     } else {
-      gameStatus.innerHTML = "Bad number.";
-      squaresMatrix[line][col].innerHTML = "wrong";
+      if (inputDigit != "") {
+        gameStatus.innerHTML = "Bad number.";
+        squaresMatrix[line][col].innerHTML = "wrong";
+      }
     }
-    console.log(squaresMatrix);
   }
 
   if (nrTries >= 30) {
