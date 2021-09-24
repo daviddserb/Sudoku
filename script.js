@@ -138,8 +138,9 @@ function clickInputSquares(line, col) {
       if (inputDigit != "") {
         gameStatus.innerHTML = "Bad number.";
         squaresMatrix[line][col].innerHTML = "wrong";
-      } else {
+      } else { //when you just click the square or you delete something
         squaresMatrix[line][col].innerHTML = "";
+        gameStatus.innerHTML = "";
       }
     }
   }
