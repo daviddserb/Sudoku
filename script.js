@@ -1,31 +1,35 @@
 const grid = document.getElementById("grid");
 const gameStatus = document.getElementById("gameStatus")
 const width = 9, height = width;
-var squaresMatrix = Array(9).fill().map(() => Array(9).fill()); //will save the textarea html element and the number inside it
 
-var cntExtremeCase = 0; //will refresh the page if an error appears when creating the board
-
-var won = false; //will be true, when the player finished the game
-var nrTries = 0; //will check if the player won the game after some tries
+var squaresMatrix = Array(9).fill().map(() => Array(9).fill());
+var cntTableBuildError = 0;
+var won = false; // Will be true when the player finished/won the game
+var nrTries = 0; // Will check if the player won the game only after some input tries
 
 function generateBoard() {
   for (let line = 0; line < width; ++line) {
     for (let col = 0; col < height; ++col) {
-      var square = document.createElement("textarea"); //create HTML element with the "textarea" tag
+      var square = document.createElement("textarea");
       square.setAttribute("id", line + "" + col);
-      squaresMatrix[line][col] = square;
-      grid.appendChild(square); //add the square to the board
 
-      if (line == 2 || line == 5) { //matrix delimitation (horizontal)
+      squaresMatrix[line][col] = square;
+      grid.appendChild(square); // Add the square to the board
+
+      if (line == 2 || line == 5) { // Matrix delimitation (horizontal)
        square.style.borderBottom = "3px solid";
       }
-      if (col != 0 && col % 3 == 0) { //matrix delimitation (vertical)
+      if (col != 0 && col % 3 == 0) { // Matrix delimitation (vertical)
         square.style.borderLeft = "3px solid";
       }
 
-      square.addEventListener("click", function() { //(! because function() => move over in the code and it's called only on click)
-        clickInputSquares(line, col);
-      })
+      square.addEventListener("input", function() {
+        validateNumericInput(square);
+      });
+
+      square.addEventListener("click", function() {
+        clickInputSquare(line, col);
+      });
     }
   }
   addNumbers();
@@ -33,13 +37,13 @@ function generateBoard() {
 }
 
 function addNumbers() {
-  //build the entire sudoku board
+  // Build entire Sudoku table following Sudoku's rules
   for (let line = 0; line < width; ++line) {
     for (let col = 0; col < height; ++col) {
       let randomVal = Math.floor(Math.random() * 9) + 1;
       if (checkSudokuRules(line, col, randomVal)) {
         squaresMatrix[line][col].innerHTML = randomVal;
-      } else { //when the random value is not good => check all posibilities from 1 to 9
+      } else { // When the random value for the square is not good => check all posibilities from 1 to 9
         let valueNotGood = "yes", tryAllValues = 1;
         while (valueNotGood == "yes" && tryAllValues < 10) {
           if (checkSudokuRules(line, col, tryAllValues)) {
@@ -50,16 +54,17 @@ function addNumbers() {
           }
         }
 
-        if (tryAllValues == 10 && valueNotGood == "yes") { //when no number between 1 to 9 is good in the square (extreme case)
-          ++cntExtremeCase;
-          //'delete' the entire line and repeat the process from the start of that line
+        // When no number [1, 9] is good in the square (extreme case) => delete the entire line and repeat the process from the start of that line
+        if (tryAllValues == 10 && valueNotGood == "yes") {
+          ++cntTableBuildError;
           for (let colStart = 0; colStart <= col; ++colStart) {
             squaresMatrix[line][colStart].innerHTML = "";
           }
           col = -1;
         }
-        if (cntExtremeCase == 2000) { //when enter the extreme case too many times
-          location.reload(); //refresh page to don't encounter errors
+        // When the table doesn't properly generate (extreme case) => refresh page to don't encounter bugs
+        if (cntTableBuildError == 2000) {
+          location.reload();
           break;
         }
       }
@@ -68,25 +73,23 @@ function addNumbers() {
 }
 
 function checkSudokuRules(lineNr, colNr, valNr) {
-  if (!(1 <= valNr && valNr <= 9)) {
-    return false;
-  }
+  if (!(1 <= valNr && valNr <= 9)) return false;
 
-  //check the line from the big matrix
+  // Check the 9x9 matrix line
   for (let colMatrix = 0; colMatrix < width; ++colMatrix) {
     if (valNr == squaresMatrix[lineNr][colMatrix].innerHTML && colNr != colMatrix) { //
       return false;
     }
   }
 
-  //check the column from the big matrix
+  // Check the 9x9 matrix column
   for (let lineMatrix = 0; lineMatrix < height; ++lineMatrix) {
     if (valNr == squaresMatrix[lineMatrix][colNr].innerHTML && lineNr != lineMatrix) { //
       return false;
     }
   }
 
-  //check the 3x3 matrix
+  // Check the 3x3 matrix
   let startLine3x3Matrix = Math.floor(lineNr / 3) * 3;
   let startCol3x3Matrix = Math.floor(colNr / 3) * 3;
   for (let i = startLine3x3Matrix; i < startLine3x3Matrix + 3; ++i) {
@@ -100,12 +103,12 @@ function checkSudokuRules(lineNr, colNr, valNr) {
 }
 
 function hideNumbers() {
-  //after the entire sudoku board has been built => 'hide' the numbers from random positions
+  // After the entire sudoku board has been built, then must 'hide' X numbers from random and different positions
   let numbersToHide = 30;
   while (numbersToHide != 0) {
     let line = Math.floor(Math.random() * 9);
     let column = Math.floor(Math.random() * 9);
-    if (squaresMatrix[line][column].innerHTML != "") { //only different positions //
+    if (squaresMatrix[line][column].innerHTML != "") {
       squaresMatrix[line][column].innerHTML = "";
       --numbersToHide;
     }
@@ -116,38 +119,37 @@ function hideNumbers() {
 function createEditableSquares() {
   for (let line = 0; line < width; ++line) {
     for (let col = 0; col < height; ++col) {
-      if (squaresMatrix[line][col].innerHTML != "") { //
+      if (squaresMatrix[line][col].innerHTML != "") {
         squaresMatrix[line][col].setAttribute("readonly", true);
       }
     }
   }
 }
 
-function clickInputSquares(line, col) {
-  if (won) {
-    return;
-  }
+function clickInputSquare(line, col) {
+  if (won) return;
 
   if (!squaresMatrix[line][col].readOnly) {
     ++nrTries;
     let inputDigit = squaresMatrix[line][col].value;
+
     if (checkSudokuRules(line, col, inputDigit)) {
       gameStatus.innerHTML = "Good number.";
+      gameStatus.style.color = "green";
       squaresMatrix[line][col].innerHTML = inputDigit;
     } else {
       if (inputDigit != "") {
         gameStatus.innerHTML = "Bad number.";
-        squaresMatrix[line][col].innerHTML = "wrong";
-      } else { //when you just click the square or you delete something
+        gameStatus.style.color = "red";
+        squaresMatrix[line][col].innerHTML = "wrong"; // Mark the user's input value as 'wrong' if it doesn't respect Sudoku rules
+      } else { // When user clicks the square or deletes value from square
         squaresMatrix[line][col].innerHTML = "";
         gameStatus.innerHTML = "";
       }
     }
   }
 
-  if (nrTries >= 30) {
-    checkIfWin();
-  }
+  if (nrTries >= 30) checkIfWin();
 }
 
 function checkIfWin() {
@@ -166,7 +168,7 @@ function checkIfWin() {
         squaresMatrix[i][j].setAttribute("readonly", true);
       }
     }
-    document.getElementById("gameStatus").innerHTML = "YOU WON!";
+    document.getElementById("gameStatus").innerHTML = "CONGRATULATIONS! YOU WON!";
   }
 }
 
