@@ -80,14 +80,14 @@ function fillSudokuBoard() {
 function isDigitValidForSudoku(row, col, digit) {
     if (!(1 <= digit && digit <= 9)) return false;
 
-    // Check the 9x9 matrix's line - from the start of the line until the position of the new digit
-    for (let bigCol = 0; bigCol < col; ++bigCol) {
-        if (digit == SUDOKU_GRID[row][bigCol].innerHTML) return false;
+    // Check the 9x9 matrix's line
+    for (let bigCol = 0; bigCol < GRID_SIZE; ++bigCol) {
+        if (digit == SUDOKU_GRID[row][bigCol].innerHTML && col != bigCol) return false;
     }
 
-    // Check the 9x9 matrix's column - from the start of the column until the position of the new digit
-    for (let bigRow = 0; bigRow < row; ++bigRow) {
-        if (digit == SUDOKU_GRID[bigRow][col].innerHTML) return false;
+    // Check the 9x9 matrix's column
+    for (let bigRow = 0; bigRow < GRID_SIZE; ++bigRow) {
+        if (digit == SUDOKU_GRID[bigRow][col].innerHTML && row != bigRow) return false;
     }
 
     // Check the 3x3 matrix excluding the position of the new digit
