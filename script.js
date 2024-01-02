@@ -4,13 +4,12 @@ const GAME_STATUS = document.getElementById("gameStatus")
 const SUDOKU_GRID = Array(9).fill().map(() => Array(9).fill());
 
 var isGameWon = false;
-var cntUserInput = 0;
 var cntSudokuGridBuildError = 0;
 
 function startGame() {
     generateSudokuBoard();
-    fillSudokuBoard();
-    hideNumbersInGrid();
+    addNumbersInSudokuBoard();
+    hideNumbersInSudokuBoard();
     createEditableSquares();
 }
 
@@ -20,7 +19,7 @@ function generateSudokuBoard() {
             var square = document.createElement("textarea");
             square.setAttribute("id", row + "" + col);
             SUDOKU_GRID[row][col] = square;
-            grid.appendChild(square); // Add the square to the board
+            GRID.appendChild(square); // Add the square to the board
 
             // Matrix delimitation (horizontal)
             if (row != 0 && row % 3 == 0) square.style.borderTop = "3px solid";
@@ -36,7 +35,7 @@ function generateSudokuBoard() {
 }
 
 // Add the numbers in Sudoku board following Sudoku's rules
-function fillSudokuBoard() {
+function addNumbersInSudokuBoard() {
     for (let row = 0; row < GRID_SIZE; ++row) {
         for (let col = 0; col < GRID_SIZE; ++col) {
             let randomDigit = Math.floor(Math.random() * 9) + 1;
@@ -44,7 +43,7 @@ function fillSudokuBoard() {
             // If the digit respects Sudoku's rules => save it
             if (isDigitValidForSudoku(row, col, randomDigit)) {
                 SUDOKU_GRID[row][col].innerHTML = randomDigit;
-            } else { // If not, check all digits from 1 to 9
+            } else { // If not, check all digits from [1, 9]
                 let firstDigit = 1;
                 const INVALID_NUMBER = 10;
 
@@ -80,12 +79,12 @@ function fillSudokuBoard() {
 function isDigitValidForSudoku(row, col, digit) {
     if (!(1 <= digit && digit <= 9)) return false;
 
-    // Check the 9x9 matrix's line
+    // Check the 9x9 matrix's line excluding the position of the new digit
     for (let bigCol = 0; bigCol < GRID_SIZE; ++bigCol) {
         if (digit == SUDOKU_GRID[row][bigCol].innerHTML && col != bigCol) return false;
     }
 
-    // Check the 9x9 matrix's column
+    // Check the 9x9 matrix's column excluding the position of the new digit
     for (let bigRow = 0; bigRow < GRID_SIZE; ++bigRow) {
         if (digit == SUDOKU_GRID[bigRow][col].innerHTML && row != bigRow) return false;
     }
@@ -103,9 +102,9 @@ function isDigitValidForSudoku(row, col, digit) {
 }
 
 // After the entire Sudoku grid has been built, then we must 'hide' CNT_NUMBERS_TO_HIDE amount of numbers from random and different positions
-function hideNumbersInGrid() {
+function hideNumbersInSudokuBoard() {
     const SUDOKU_GRID_POSITIONS = [];
-    const CNT_NUMBERS_TO_HIDE = 30;
+    const CNT_NUMBERS_TO_HIDE = 15;
 
     // Create an array of all possible positions in the grid
     for (let row = 0; row < GRID_SIZE; ++row) {
@@ -116,7 +115,7 @@ function hideNumbersInGrid() {
 
     const SUDOKU_GRID_POSITIONS_SHUFFLED = SUDOKU_GRID_POSITIONS.sort(() => Math.random() - 0.5);
 
-    // Hide the first 30 positions
+    // Hide the first CNT_NUMBERS_TO_HIDE positions
     for (let pos = 0; pos < CNT_NUMBERS_TO_HIDE; ++pos) {
         const { row, col } = SUDOKU_GRID_POSITIONS_SHUFFLED[pos];
         SUDOKU_GRID[row][col].innerHTML = "";
@@ -135,7 +134,6 @@ function clickInputSquare(row, col) {
     if (isGameWon || SUDOKU_GRID[row][col].readOnly) return;
 
     let inputDigit = SUDOKU_GRID[row][col].value;
-    ++cntUserInput;
 
     if (isDigitValidForSudoku(row, col, inputDigit)) {
         GAME_STATUS.innerHTML = "Good number.";
@@ -146,14 +144,13 @@ function clickInputSquare(row, col) {
             GAME_STATUS.innerHTML = "Bad number.";
             GAME_STATUS.style.color = "red";
             SUDOKU_GRID[row][col].innerHTML = "wrong"; // Mark the user's input value as 'wrong' if it doesn't respect Sudoku rules
-        } else { // When user first time left-clicks the square or deletes the value
+        } else { // When user first time left-clicks the square or deletes the value from a square
             SUDOKU_GRID[row][col].innerHTML = "";
             GAME_STATUS.innerHTML = "";
         }
     }
 
-    // Check if the game is won only after the initial value of the cntNumbersToHide
-    if (cntUserInput >= 30) checkIfGameWon();
+    checkIfGameWon();
 }
 
 function checkIfGameWon() {
